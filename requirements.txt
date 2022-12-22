@@ -1,0 +1,13 @@
+torch
+transformers
+datasets
+tqdm
+pandas
+scikit-learn
+torch
+wandb
+numpy
+faiss-gpu
+einops
+omegaconf
+sentencepiece

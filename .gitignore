@@ -1,0 +1,14 @@
+*.pt
+*.textClipping
+*/*.csv
+*/*.json
+*.json
+
+__pycache__
+.vscode
+
+save/*
+data/wikipedia_documents.json
+data/test_dataset/*
+data/train_dataset/*
+wandb/

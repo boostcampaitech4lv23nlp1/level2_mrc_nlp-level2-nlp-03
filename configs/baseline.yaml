@@ -1,0 +1,39 @@
+wandb:
+    entity: naver_mrc_nlp3
+    project: test-project
+    group: test-group
+    experiment: test-experiment
+
+save_dir : baseline
+
+data:
+    # k_fold: 
+    #     n_split: 5
+    #     type: StratifiedKFold # StratifiedShuffleSplit
+    train_path: data/train_dataset/train
+    val_path: data/train_dataset/validation
+    test_path: data/test_dataset/validation
+    Retrieval: wikipedia_documents.json
+    preprocess: stride_preprocess
+    AIhub_data_add: False
+    
+model:
+    model_name : klue/bert-base
+    model_class : BaselineModel
+    trainer_class: BaselineTrainer
+    metric_class : Metrics_nbest
+    loss : CEloss
+    optimizer : AdamW
+    dropout_rate : 0.1
+
+train:
+    seed: 42
+    gpus: 1
+    batch_size: 64
+    max_epoch: 3
+    learning_rate: 2e-5
+    logging_step: 1
+    max_length : 384
+    stride : 128
+    n_best_size : 20
+    max_answer_length: 30
