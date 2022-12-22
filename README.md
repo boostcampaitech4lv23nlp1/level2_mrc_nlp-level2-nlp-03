@@ -61,7 +61,7 @@ type: subject (#이슈번호)
 `어떤 세부사항이 예상되는지 작성해주세요.`        
 or
 ## Target 
-`어떤 부분을 수정하거나 추가가 할 것인지 작성해주세요.`        
+`어떤 부분을 수정하거나 추가가 할 것인지 작성해주세요.`        
 
 ## 세부사항
 `어떤 세부사항을 수정/추가할 것인지 작성해주세요.`       
@@ -69,9 +69,9 @@ or
 
 ## Discussions convention.
 
-##### Discussion Message Structure.
+##### Discussion Message Structure.
 
-기본적으로 Discussion은 다음을 포함하여 게시한다.
+기본적으로 Discussion은 다음을 포함하여 게시한다.
 
 ```bash
 type: Title (#이슈번호)
