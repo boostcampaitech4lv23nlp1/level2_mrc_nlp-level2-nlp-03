@@ -14,7 +14,7 @@ class Metrics_nbest():
         self.mode = mode
         self.version_2_with_negative = version_2_with_negative
 
-    def compute_EM_f1(self, all_start_logits, all_end_logits):
+    def compute_EM_f1(self, all_start_logits, all_end_logits, epoch=1):
         # 각 문서의 id를 키값, index를 밸류값으로 하는 딕셔너리 생성(참조용)
         '''
         키값으로 인덱스, 밸류값으로 동일한 아이디를 가지는 문서들의 index를 가지는 리스트(example_id_to_index 참조)
@@ -169,10 +169,12 @@ class Metrics_nbest():
             ]
 
         # all_predictions와 n_best를 json파일로 내보내기
-        with open(f'save/{self.save_dir}/predictions.json', "w", encoding="utf-8") as f:
+        if self.mode == 'test':
+            epoch = 'submission'
+        with open(f'save/{self.save_dir}/predictions_{epoch}.json', "w", encoding="utf-8") as f:
             f.write(json.dumps(all_predictions, indent=4, ensure_ascii=False) + '\n')
 
-        with open(f'save/{self.save_dir}/nbest_predictions.json', "w", encoding="utf-8") as f:
+        with open(f'save/{self.save_dir}/nbest_predictions_{epoch}.json', "w", encoding="utf-8") as f:
             f.write(json.dumps(all_nbest_json, indent=4, ensure_ascii=False) + '\n')
 
         # 실제 계산단계
