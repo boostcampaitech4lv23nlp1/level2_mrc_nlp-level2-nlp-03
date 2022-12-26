@@ -29,13 +29,11 @@ def wandb_setting(config:DictConfig, sweep:bool=False):
     config_w = disentangle(dict(), config)
     wandb.login()
     
-    if sweep:
-        pass
-    else:
-        wandb.init(entity=config.wandb.entity,
-                    project=config.wandb.project,
-                   group=config.wandb.group,
-                   name=config.wandb.experiment,
-                   config=config_w)
-
     print(OmegaConf.to_yaml(config))
+
+    wandb.init(entity=config.wandb.entity,
+                project=config.wandb.project,
+                group=config.wandb.group,
+                name=config.wandb.experiment,
+                mode="online" if config.wandb.oneline else 'offline',
+                config=config_w)

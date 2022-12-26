@@ -135,7 +135,7 @@ class BaselineTrainer():
 
             start_logits_all = np.concatenate(start_logits_all)[:len_val_dataset]
             end_logits_all = np.concatenate(end_logits_all)[:len_val_dataset]
-            metrics = self.metric.compute_EM_f1(start_logits_all, end_logits_all)
+            metrics = self.metric.compute_EM_f1(start_logits_all, end_logits_all, epoch)
             
             print(f"Epoch [{epoch+1}/{self.epochs}] Val_loss : {val_loss}")
             print(f"Epoch [{epoch+1}/{self.epochs}] Extact Match :", metrics['exact_match'])

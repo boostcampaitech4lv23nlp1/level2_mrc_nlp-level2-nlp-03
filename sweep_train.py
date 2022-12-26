@@ -1,6 +1,7 @@
 import torch
 import argparse
 from omegaconf import OmegaConf
+import wandb
 
 from torch.utils.data.dataloader import DataLoader
 from transformers import AutoTokenizer, DataCollatorWithPadding
@@ -95,26 +96,44 @@ def main(config):
             optimizer = optimizer,
             device = device,
             save_dir = save_dir,
-            wandb_switch = config.wandb.switch,
             train_dataloader = train_dataloader,
             valid_dataloader = valid_dataloader,
             lr_scheduler=lr_scheduler,
             epochs=epochs,
         )
 
-    ## wandb를 설정해주시면 됩니다. 만약 sweep을 진행하고 싶다면 sweep=True로 설정해주세요.
-    ## 자세한 sweep 설정은 utils/wandb_setting.py를 수정해주세요.
-    wandb_setting(config)
     trainer.train()
+
+def wandb_sweep():
+    with wandb.init() as run:
+        # update any values not set by sweep
+        # run.config.setdefaults(config)
+        for k, v in run.config.items():
+            print(k, v)
+            OmegaConf.update(config, k, v)
+'''
+main에 config 업데이트 되는지 확인
+'''
+        # main()
 
 if __name__=='__main__':
     torch.cuda.empty_cache()
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', type=str, default='baseline')
+    parser.add_argument('--config', type=str, default='roberta_large_sweep')
     args, _ = parser.parse_known_args()
     ## ex) python3 train.py --config baseline
     
     config = OmegaConf.load(f'./configs/{args.config}.yaml')
     print(f'사용할 수 있는 GPU는 {torch.cuda.device_count()}개 입니다.')
 
-    main(config)
+    ## wandb를 설정해주시면 됩니다. 만약 sweep을 진행하고 싶다면 sweep=True로 설정해주세요.
+    ## 자세한 sweep 설정은 utils/wandb_setting.py를 수정해주세요.
+
+    if config.get('sweep'):
+        wandb.login()
+        sweep_config = OmegaConf.to_object(config.sweep)
+        sweep_id = wandb.sweep(
+                sweep=sweep_config,
+                entity=config.wandb.entity,
+                project=config.wandb.project)
+        wandb.agent(sweep_id=sweep_id, function=wandb_sweep, count=2)

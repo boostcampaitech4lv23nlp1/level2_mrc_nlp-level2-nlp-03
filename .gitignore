@@ -3,6 +3,7 @@
 */*.csv
 */*.json
 *.json
+*/*.bin
 
 __pycache__
 .vscode

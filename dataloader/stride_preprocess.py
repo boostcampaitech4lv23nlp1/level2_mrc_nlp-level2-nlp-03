@@ -60,9 +60,12 @@ class stride_preprocess:
         # 정답지를 만들기 위한 리스트
         tokenized_sentences["start_positions"] = []
         tokenized_sentences["end_positions"] = []
+        if self.tokenizer.cls_token_id:
+            cls_index = input_ids.index(self.tokenizer.cls_token_id)
+        elif 't5' in self.tokenizer.name_or_path:
+            cls_index = self.tokenizer('question')['input_ids'][0] # t5의 question 토큰을 cls 토큰이라 가정
         for i, offsets in enumerate(offset_mapping):
             input_ids = tokenized_sentences["input_ids"][i]
-            cls_index = input_ids.index(self.tokenizer.cls_token_id)
             
             # 해당 example에 해당하는 sequence를 찾음.
             sequence_ids = tokenized_sentences.sequence_ids(i)
@@ -124,9 +127,12 @@ class stride_preprocess:
         tokenized_sentences["start_positions"] = []
         tokenized_sentences["end_positions"] = []
         tokenized_sentences["example_id"] = []
+        if self.tokenizer.cls_token_id:
+            cls_index = input_ids.index(self.tokenizer.cls_token_id)
+        elif 't5' in self.tokenizer.name_or_path:
+            cls_index = self.tokenizer('question')['input_ids'][0] # t5의 question 토큰을 cls 토큰이라 가정
         for i, offsets in enumerate(offset_mapping):
             input_ids = tokenized_sentences["input_ids"][i]
-            cls_index = input_ids.index(self.tokenizer.cls_token_id)
             
             # 해당 example에 해당하는 sequence를 찾음.
             sequence_ids = tokenized_sentences.sequence_ids(i)

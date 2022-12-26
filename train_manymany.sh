@@ -1,7 +1,7 @@
 #!/bin/bash
-CONFIGS=("T5/T5_large_GRU" "T5/T5_large_GRU3e-5" "T5/T5_large_LSTM" "T5/T5_large_LSTM3e-5")
+CONFIGS=("roberta_large_lr01" "roberta_large_lr02" "roberta_large_lr03" "roberta_large_lr04" "roberta_large_lr06" "roberta_large_lr07" "roberta_large_lr08" "roberta_large_lr09" )
 
-for (( i=0; i<4; i++ ))
+for (( i=0; i<8; i++ ))
 do
     python3 train.py --config ${CONFIGS[$i]}
 done
