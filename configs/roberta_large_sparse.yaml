@@ -30,7 +30,7 @@ train:
     seed: 42
     gpus: 1
     batch_size: 16
-    max_epoch: 5
+    max_epoch: 2
     dropout_rate : 0.1
     learning_rate: 5e-6
     logging_step: 1

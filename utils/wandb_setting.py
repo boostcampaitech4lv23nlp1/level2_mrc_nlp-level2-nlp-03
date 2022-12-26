@@ -35,5 +35,5 @@ def wandb_setting(config:DictConfig, sweep:bool=False):
                 project=config.wandb.project,
                 group=config.wandb.group,
                 name=config.wandb.experiment,
-                mode="online" if config.wandb.oneline else 'offline',
+                mode="online" if config.wandb.online else 'offline',
                 config=config_w)

@@ -2,6 +2,7 @@ import torch
 import argparse
 from omegaconf import OmegaConf
 from tqdm.auto import tqdm
+import os
 import numpy as np
 
 from torch.utils.data.dataloader import DataLoader
@@ -65,8 +66,8 @@ def main(config):
         dropout_rate = config.train.dropout_rate,
         ).to(device)
 
-
-    checkpoint = torch.load(f'./save/{config.save_dir}/epoch:4_model.pt')
+    best_model = [model for model in os.listdir(f'./save/{config.save_dir}') if 'nbest' not in model and 'best' in model][0]
+    checkpoint = torch.load(f'./save/{config.save_dir}/{best_model}')
     model.load_state_dict(checkpoint)
     model.to(device)
     model.eval()
@@ -81,6 +82,7 @@ def main(config):
         is_token_type_ids = True
 
     len_val_dataset = test_dataloader.dataset.num_rows
+    start_logits_all, end_logits_all = [], []
     with torch.no_grad():
         for test_batch in tqdm(test_dataloader):
             if is_token_type_ids: # BERT 모델일 경우 token_type_ids를 넣어줘야 합니다.
@@ -97,20 +99,12 @@ def main(config):
 
             start_logits, end_logits = model(**inputs)
 
-            start_positions = test_batch['start_positions'].to(device)
-            end_positions = test_batch['end_positions'].to(device)
-
-            # seq_len 길이만큼 boundary를 설정하여 seq_len 밖으로 벗어날 경우 벗어난 값을 최소값인 0(cls 토큰)으로 설정해줌
-            start_positions.clamp(0, start_logits.size(1))
-            end_positions.clamp(0, end_logits.size(1))
-
             start_logits_all.append(start_logits.detach().cpu().numpy())
             end_logits_all.append(end_logits.detach().cpu().numpy())
 
     start_logits_all = np.concatenate(start_logits_all)[:len_val_dataset]
     end_logits_all = np.concatenate(end_logits_all)[:len_val_dataset]
     metrics = metric.compute_EM_f1(start_logits_all, end_logits_all, None)
-
 
 if __name__=='__main__':
     torch.cuda.empty_cache()
