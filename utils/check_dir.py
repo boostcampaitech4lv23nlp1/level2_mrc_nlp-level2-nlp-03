@@ -10,6 +10,9 @@ def check_dir(save_directory):
 
         return save_directory
 
+    elif os.path.isdir(f'save/{save_directory}') and not bool((os.listdir(f'save/{save_directory}'))):
+        return save_directory
+
     elif os.path.isdir(f'save/{save_directory}') and bool(os.listdir(f'save/{save_directory}')):
         print('='*50,f'파일이 덮여씌여지는 것을 방지하기 위해 새로운 디렉토리를 생성합니다. 필요없는 모델은 확인 후 삭제해주세요.', '='*50, sep='\n\n')
         number = 1

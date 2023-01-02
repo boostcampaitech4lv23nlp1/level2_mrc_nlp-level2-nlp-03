@@ -2,10 +2,10 @@ wandb:
     entity: naver_mrc_nlp3
     project: chanmuzi
     group: klue/roberta
-    experiment: roberta-large-sparse-tfidf
+    experiment: roberta-large-bm25
     online: True
 
-save_dir : roberta-large-sparse
+save_dir : roberta-large-bm25
 
 data:
     # k_fold: 

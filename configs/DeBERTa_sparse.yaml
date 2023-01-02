@@ -1,11 +1,11 @@
 wandb:
     entity: naver_mrc_nlp3
     project: seonjong
-    group: klue/roberta
-    experiment: roberta-large-sparse
+    group: DeBERTa
+    experiment: DeBERTa_sparse
     online: True
 
-save_dir : roberta-large-sparse
+save_dir : DeBERTa_sparse
 
 data:
     # k_fold: 
@@ -19,7 +19,7 @@ data:
     AIhub_data_add: False # train 셋에 추가 valid/test x
     
 model:
-    model_name : klue/roberta-large
+    model_name : lighthouse/mdeberta-v3-base-kor-further
     model_class : BaselineModel
     trainer_class: BaselineTrainer
     metric_class : Metrics_nbest
@@ -29,10 +29,10 @@ model:
 train:
     seed: 42
     gpus: 1
-    batch_size: 8
-    max_epoch: 2
+    batch_size: 16
+    max_epoch: 3
     dropout_rate : 0.1
-    learning_rate: 5e-6
+    learning_rate: 1e-5
     logging_step: 1
     max_length : 512
     stride : 128
@@ -43,7 +43,7 @@ retrieval:
     retrieval_path: data/
     retrieval_data: wikipedia_documents.json
     retrieval_class: SparseRetrieval
-    topk: 60
+    topk: 1
     is_faiss: False
 
 # sweep:

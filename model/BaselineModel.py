@@ -6,7 +6,7 @@ class BaselineModel(nn.Module):
     """_summary_
     베이스라인 모델입니다.
     """
-    def __init__(self, model_name, num_labels, dropout_rate):
+    def __init__(self, model_name, num_labels, dropout_rate, num_layers=1):
         super().__init__()
         self.dropout_rate = dropout_rate
         self.num_labels = num_labels
@@ -16,7 +16,7 @@ class BaselineModel(nn.Module):
             self.model = T5ForConditionalGeneration.from_pretrained(self.model_name).get_encoder()
         else:
             self.model = AutoModel.from_pretrained(self.model_name)
-            
+
         self.qa_outputs = nn.Sequential(
             # nn.Dropout(p=self.dropout_rate),
             nn.Linear(self.model.config.hidden_size, self.num_labels)

@@ -57,7 +57,7 @@ def main(config):
     test_dataset.set_format("torch")
     data_collator = DataCollatorWithPadding(tokenizer)
 
-    test_dataloader = DataLoader(test_dataset, batch_size= config.train.batch_size, collate_fn=data_collator, pin_memory=True, shuffle=False)
+    test_dataloader = DataLoader(test_dataset, batch_size= 256, collate_fn=data_collator, pin_memory=True, shuffle=False)
   
     print('='*50,f'현재 적용되고 있는 모델 클래스는 {config.model.model_class}입니다.', '='*50, sep='\n\n')
     model = getattr(Model, config.model.model_class)(

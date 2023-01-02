@@ -140,12 +140,14 @@ class BaselineTrainer():
             print(f"Epoch [{epoch+1}/{self.epochs}] Val_loss : {val_loss}")
             print(f"Epoch [{epoch+1}/{self.epochs}] Extact Match :", metrics['exact_match'])
             print(f"Epoch [{epoch+1}/{self.epochs}] F1_score :", metrics['f1'])
-            wandb.log({'epoch' : epoch, 'val_loss' : val_loss})
+            wandb.log({'epoch' : epoch+1, 'val_loss' : val_loss})
             wandb.log({'epoch' : epoch+1, 'Exact_Match' : metrics['exact_match']})
             wandb.log({'epoch' : epoch+1, 'f1_score' : metrics['f1']})
 
             if epoch < 9:
                 epoch = '0' + str(epoch+1)
+            else:
+                epoch = epoch + 1
             torch.save(self.model.state_dict(), f'save/{self.save_dir}/epoch:{epoch}_model.pt')
             print('save checkpoint!')
 
