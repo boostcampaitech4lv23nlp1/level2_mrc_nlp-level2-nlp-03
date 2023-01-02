@@ -55,7 +55,7 @@ class SparseRetrieval_bm25:
         if self.is_faiss:
             self.indexer = build_faiss(data_path, self.passage_embedding, num_clusters=64)
 
-    def retrieve_bm25(self,
+    def retrieve(self,
                 query_or_dataset: Union[str, Dataset],
                 topk: Optional[int] = 1
                 ) -> Union[Tuple[List, List], DatasetDict]:
