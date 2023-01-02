@@ -60,12 +60,14 @@ class stride_preprocess:
         # 정답지를 만들기 위한 리스트
         tokenized_sentences["start_positions"] = []
         tokenized_sentences["end_positions"] = []
-        if self.tokenizer.cls_token_id:
-            cls_index = input_ids.index(self.tokenizer.cls_token_id)
-        elif 't5' in self.tokenizer.name_or_path:
-            cls_index = self.tokenizer('question')['input_ids'][0] # t5의 question 토큰을 cls 토큰이라 가정
         for i, offsets in enumerate(offset_mapping):
             input_ids = tokenized_sentences["input_ids"][i]
+
+            # cls_token의 인덱스를 찾음
+            if self.tokenizer._cls_token:
+                cls_index = input_ids.index(self.tokenizer.cls_token_id)
+            elif 't5' in self.tokenizer.name_or_path:
+                cls_index = input_ids.index(self.tokenizer('question')['input_ids'][0]) # t5의 question 토큰을 cls 토큰이라 가정
             
             # 해당 example에 해당하는 sequence를 찾음.
             sequence_ids = tokenized_sentences.sequence_ids(i)
@@ -73,33 +75,38 @@ class stride_preprocess:
             # sequence가 속하는 example을 찾는다.
             example_index = overflow_to_sample_mapping[i]
             answers = train_data["answers"][example_index]
-            
-            # 텍스트에서 answer의 시작점, 끝점
-            answer_start_offset = answers["answer_start"][0]
-            answer_end_offset = answer_start_offset + len(answers["text"][0])
 
-            # 텍스트에서 현재 span의 시작 토큰 인덱스
-            token_start_index = 0
-            while sequence_ids[token_start_index] != 1:
-                token_start_index += 1
-            
-            # 텍스트에서 현재 span 끝 토큰 인덱스
-            token_end_index = len(input_ids) - 1
-            while sequence_ids[token_end_index] != 1:
-                token_end_index -= 1
-
-            # answer가 현재 span을 벗어났는지 체크
-            if not (offsets[token_start_index][0] <= answer_start_offset and offsets[token_end_index][1] >= answer_end_offset):
+            # answer가 없을 경우 cls_index를 answer로 설정합니다(== example에서 정답이 없는 경우 존재할 수 있음).
+            if len(answers["answer_start"]) == 0:
                 tokenized_sentences["start_positions"].append(cls_index)
                 tokenized_sentences["end_positions"].append(cls_index)
             else:
-                # token_start_index와 token_end_index를 answer의 시작점과 끝점으로 옮김
-                while token_start_index < len(offsets) and offsets[token_start_index][0] <= answer_start_offset:
+                # 텍스트에서 answer의 시작점, 끝점
+                answer_start_offset = answers["answer_start"][0]
+                answer_end_offset = answer_start_offset + len(answers["text"][0])
+
+                # 텍스트에서 현재 span의 시작 토큰 인덱스
+                token_start_index = 0
+                while sequence_ids[token_start_index] != 1:
                     token_start_index += 1
-                tokenized_sentences["start_positions"].append(token_start_index - 1)
-                while offsets[token_end_index][1] >= answer_end_offset:
+                
+                # 텍스트에서 현재 span 끝 토큰 인덱스
+                token_end_index = len(input_ids) - 1
+                while sequence_ids[token_end_index] != 1:
                     token_end_index -= 1
-                tokenized_sentences["end_positions"].append(token_end_index + 1)
+
+                # answer가 현재 span을 벗어났는지 체크
+                if not (offsets[token_start_index][0] <= answer_start_offset and offsets[token_end_index][1] >= answer_end_offset):
+                    tokenized_sentences["start_positions"].append(cls_index)
+                    tokenized_sentences["end_positions"].append(cls_index)
+                else:
+                    # token_start_index와 token_end_index를 answer의 시작점과 끝점으로 옮김
+                    while token_start_index < len(offsets) and offsets[token_start_index][0] <= answer_start_offset:
+                        token_start_index += 1
+                    tokenized_sentences["start_positions"].append(token_start_index - 1)
+                    while offsets[token_end_index][1] >= answer_end_offset:
+                        token_end_index -= 1
+                    tokenized_sentences["end_positions"].append(token_end_index + 1)
 
         return tokenized_sentences
 
@@ -127,12 +134,14 @@ class stride_preprocess:
         tokenized_sentences["start_positions"] = []
         tokenized_sentences["end_positions"] = []
         tokenized_sentences["example_id"] = []
-        if self.tokenizer.cls_token_id:
-            cls_index = input_ids.index(self.tokenizer.cls_token_id)
-        elif 't5' in self.tokenizer.name_or_path:
-            cls_index = self.tokenizer('question')['input_ids'][0] # t5의 question 토큰을 cls 토큰이라 가정
         for i, offsets in enumerate(offset_mapping):
             input_ids = tokenized_sentences["input_ids"][i]
+
+            # cls_token의 인덱스를 찾음
+            if self.tokenizer._cls_token:
+                cls_index = input_ids.index(self.tokenizer.cls_token_id)
+            elif 't5' in self.tokenizer.name_or_path:
+                cls_index = input_ids.index(self.tokenizer('question')['input_ids'][0]) # t5의 question 토큰을 cls 토큰이라 가정
             
             # 해당 example에 해당하는 sequence를 찾음.
             sequence_ids = tokenized_sentences.sequence_ids(i)
@@ -142,32 +151,37 @@ class stride_preprocess:
             answers = valid_data["answers"][example_index]
             tokenized_sentences["example_id"].append(valid_data["id"][example_index])
             
-            # 텍스트에서 answer의 시작점, 끝점
-            answer_start_offset = answers["answer_start"][0]
-            answer_end_offset = answer_start_offset + len(answers["text"][0])
-
-            # 텍스트에서 현재 span의 시작 토큰 인덱스
-            token_start_index = 0
-            while sequence_ids[token_start_index] != 1:
-                token_start_index += 1
-            
-            # 텍스트에서 현재 span 끝 토큰 인덱스
-            token_end_index = len(input_ids) - 1
-            while sequence_ids[token_end_index] != 1:
-                token_end_index -= 1
-
-            # answer가 현재 span을 벗어났는지 체크
-            if not (offsets[token_start_index][0] <= answer_start_offset and offsets[token_end_index][1] >= answer_end_offset):
+            # answer가 없을 경우 cls_index를 answer로 설정합니다(== example에서 정답이 없는 경우 존재할 수 있음).
+            if len(answers["answer_start"]) == 0:
                 tokenized_sentences["start_positions"].append(cls_index)
                 tokenized_sentences["end_positions"].append(cls_index)
             else:
-                # token_start_index와 token_end_index를 answer의 시작점과 끝점으로 옮김
-                while token_start_index < len(offsets) and offsets[token_start_index][0] <= answer_start_offset:
+                # 텍스트에서 answer의 시작점, 끝점
+                answer_start_offset = answers["answer_start"][0]
+                answer_end_offset = answer_start_offset + len(answers["text"][0])
+
+                # 텍스트에서 현재 span의 시작 토큰 인덱스
+                token_start_index = 0
+                while sequence_ids[token_start_index] != 1:
                     token_start_index += 1
-                tokenized_sentences["start_positions"].append(token_start_index - 1)
-                while offsets[token_end_index][1] >= answer_end_offset:
+                
+                # 텍스트에서 현재 span 끝 토큰 인덱스
+                token_end_index = len(input_ids) - 1
+                while sequence_ids[token_end_index] != 1:
                     token_end_index -= 1
-                tokenized_sentences["end_positions"].append(token_end_index + 1)
+
+                # answer가 현재 span을 벗어났는지 체크
+                if not (offsets[token_start_index][0] <= answer_start_offset and offsets[token_end_index][1] >= answer_end_offset):
+                    tokenized_sentences["start_positions"].append(cls_index)
+                    tokenized_sentences["end_positions"].append(cls_index)
+                else:
+                    # token_start_index와 token_end_index를 answer의 시작점과 끝점으로 옮김
+                    while token_start_index < len(offsets) and offsets[token_start_index][0] <= answer_start_offset:
+                        token_start_index += 1
+                    tokenized_sentences["start_positions"].append(token_start_index - 1)
+                    while offsets[token_end_index][1] >= answer_end_offset:
+                        token_end_index -= 1
+                    tokenized_sentences["end_positions"].append(token_end_index + 1)
 
             # question과 special token을 제외한 offset_mapping으로 교체
             context_index = 1

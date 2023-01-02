@@ -33,7 +33,7 @@ def main(config):
             context_path = config.retrieval.retrieval_data,
             is_faiss = config.retrieval.is_faiss
             )
-    test_wiki_data = retrieval.retrieve(query_or_dataset=test_data, topk = config.retrieval.topk)['validation']
+    test_wiki_data = retrieval.retrieve_bm25(query_or_dataset=test_data, topk = config.retrieval.topk)['validation']
 
     test_dataset = test_wiki_data.map(
             prepare_features.test,

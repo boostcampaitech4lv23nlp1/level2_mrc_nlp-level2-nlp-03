@@ -15,14 +15,14 @@ def check_dir(save_directory):
         number = 1
         if number < 10:
             number = '0' + str(number)
-        next_directory = f'save/{save_directory}_{number}'
+        next_directory = f'{save_directory}_{number}'
 
         # next_directory가 없을때까지 다음 번호를 부여하면서 체크
         while next_directory in os.listdir('save'):
             number += 1
             if number < 10:
                 number = '0' + str(number)
-            next_directory = f'save/{next_directory}_{number}'
+            next_directory = f'{next_directory}_{number}'
 
         os.makedirs(f'save/{next_directory}')
         if os.path.isdir(f'save/{next_directory}'):

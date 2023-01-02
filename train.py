@@ -95,7 +95,6 @@ def main(config):
             optimizer = optimizer,
             device = device,
             save_dir = save_dir,
-            wandb_switch = config.wandb.switch,
             train_dataloader = train_dataloader,
             valid_dataloader = valid_dataloader,
             lr_scheduler=lr_scheduler,

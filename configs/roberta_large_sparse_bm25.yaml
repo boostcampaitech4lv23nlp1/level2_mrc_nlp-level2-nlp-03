@@ -1,8 +1,8 @@
 wandb:
     entity: naver_mrc_nlp3
-    project: seonjong
+    project: chanmuzi
     group: klue/roberta
-    experiment: roberta-large-sparse
+    experiment: roberta-large-sparse-tfidf
     online: True
 
 save_dir : roberta-large-sparse
@@ -29,12 +29,12 @@ model:
 train:
     seed: 42
     gpus: 1
-    batch_size: 16
+    batch_size: 8 # 16
     max_epoch: 2
     dropout_rate : 0.1
     learning_rate: 5e-6
     logging_step: 1
-    max_length : 384
+    max_length : 512 # 384
     stride : 128
     n_best_size : 20
     max_answer_length: 30
@@ -42,8 +42,8 @@ train:
 retrieval:
     retrieval_path: data/
     retrieval_data: wikipedia_documents.json
-    retrieval_class: SparseRetrieval
-    topk: 60
+    retrieval_class: SparseRetrieval_bm25
+    topk: 30
     is_faiss: False
 
 # sweep:
