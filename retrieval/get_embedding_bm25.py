@@ -21,7 +21,7 @@ def get_sparse_embedding_bm25(data_path, contexts):
     """
     tokenizer = AutoTokenizer.from_pretrained('klue/roberta-large')    
 
-    pickle_name = f"sparse_embedding.bin"
+    pickle_name = f"bm25_embedding.bin"
     emd_path = os.path.join(data_path, pickle_name)
 
     if os.path.isfile(emd_path):

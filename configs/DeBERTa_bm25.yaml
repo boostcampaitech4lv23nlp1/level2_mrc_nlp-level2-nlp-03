@@ -1,0 +1,71 @@
+wandb:
+    entity: naver_mrc_nlp3
+    project: chanmuzi
+    group: DeBERTa
+    experiment: DeBERTa_bm25
+    online: True
+
+save_dir : DeBERTa_bm25_512
+
+data:
+    # k_fold: 
+    #     n_split: 5
+    #     type: StratifiedKFold # StratifiedShuffleSplit
+    train_path: data/train_dataset/train
+    val_path: data/train_dataset/validation
+    test_path: data/test_dataset/validation
+    Retrieval: wikipedia_documents.json
+    preprocess: stride_preprocess
+    AIhub_data_add: False # train 셋에 추가 valid/test x
+    
+model:
+    model_name : lighthouse/mdeberta-v3-base-kor-further
+    model_class : BaselineModel
+    trainer_class: BaselineTrainer
+    metric_class : Metrics_nbest
+    loss : CEloss
+    optimizer : AdamW
+
+train:
+    seed: 42
+    gpus: 1
+    batch_size: 16
+    max_epoch: 3
+    dropout_rate : 0.1
+    learning_rate: 1e-5
+    logging_step: 1
+    max_length : 512 # 384
+    stride : 128
+    n_best_size : 20
+    max_answer_length: 30
+
+retrieval:
+    retrieval_path: data/
+    retrieval_data: wikipedia_documents.json
+    retrieval_class: SparseRetrieval_bm25
+    topk: 30
+    is_faiss: False
+
+# sweep:
+#     method: bayes
+#     metric:
+#         name: val_loss
+#         goal: minimize
+    
+#     parameters:
+#         train.learning_rate:
+#             min: 1e-6
+#             max: 1e-4
+#         train.batch_size:
+#             values:
+#                 - 16
+#         train.dropout_rate:
+#             values: 
+#                 - 0.1
+#         train.optimizer:
+#             values:
+#                 - AdamW
+#                 # - AdamP
+#         train.loss:
+#             values:
+#                 - CEloss

@@ -1,11 +1,11 @@
 wandb:
     entity: naver_mrc_nlp3
-    project: seonjong
+    project: chanmuzi
     group: DeBERTa
     experiment: DeBERTa_sparse
     online: True
 
-save_dir : DeBERTa_sparse
+save_dir : DeBERTa_sparse_512
 
 data:
     # k_fold: 
@@ -30,11 +30,11 @@ train:
     seed: 42
     gpus: 1
     batch_size: 16
-    max_epoch: 3
+    max_epoch: 5
     dropout_rate : 0.1
     learning_rate: 1e-5
     logging_step: 1
-    max_length : 512
+    max_length : 512 # 384
     stride : 128
     n_best_size : 20
     max_answer_length: 30
@@ -43,7 +43,7 @@ retrieval:
     retrieval_path: data/
     retrieval_data: wikipedia_documents.json
     retrieval_class: SparseRetrieval
-    topk: 1
+    topk: 30
     is_faiss: False
 
 # sweep:
