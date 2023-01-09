@@ -28,7 +28,10 @@ def main(config):
     
     print('='*50,f'현재 적용되고 있는 전처리 클래스는 {config.data.preprocess}입니다.', '='*50, sep='\n\n')
     tokenizer = AutoTokenizer.from_pretrained(config.model.model_name, use_fast=True)
-    prepare_features = getattr(DataProcess, config.data.preprocess)(tokenizer, config.train.max_length, config.train.stride)
+    if 't5' in config.model.model_name:
+        prepare_features = getattr(DataProcess, config.data.preprocess)(tokenizer, config.train.max_length, config.train.max_answer_length, config.train.stride)
+    else:
+        prepare_features = getattr(DataProcess, config.data.preprocess)(tokenizer, config.train.max_length, config.train.stride)
 
     # data Augementation
     if config.data.get('AIhub_data_add'):
@@ -54,15 +57,27 @@ def main(config):
         )
 
     # 원본 test data와 test dataset을 넣어주셔야 합니다.
-    metric = getattr(Metric, config.model.metric_class)(
+    if 't5' in config.model.model_name:
+            metric = getattr(Metric, config.model.metric_class)(
                 metric = load_metric('squad'),
                 dataset = valid_dataset,
                 raw_data = valid_data,
                 n_best_size = config.train.n_best_size,
                 max_answer_length = config.train.max_answer_length,
                 save_dir = config.save_dir,
-                mode = 'train'
+                mode = 'train',
+                tokenizer = tokenizer
             )
+    else:
+        metric = getattr(Metric, config.model.metric_class)(
+                    metric = load_metric('squad'),
+                    dataset = valid_dataset,
+                    raw_data = valid_data,
+                    n_best_size = config.train.n_best_size,
+                    max_answer_length = config.train.max_answer_length,
+                    save_dir = config.save_dir,
+                    mode = 'train'
+                )
 
     train_dataset.set_format("torch")
     valid_dataset = valid_dataset.remove_columns(["example_id", "offset_mapping"])
@@ -88,7 +103,8 @@ def main(config):
     save_dir = check_dir(config.save_dir)
 
     print('='*50,f'현재 적용되고 있는 트레이너는 {config.model.trainer_class}입니다.', '='*50, sep='\n\n')
-    trainer = getattr(Trainer, config.model.trainer_class)(
+    if 't5' in config.model.model_name:
+        trainer = getattr(Trainer, config.model.trainer_class)(
             model = model,
             criterion = criterion,
             metric = metric,
@@ -99,7 +115,22 @@ def main(config):
             valid_dataloader = valid_dataloader,
             lr_scheduler=lr_scheduler,
             epochs=epochs,
+            tokenizer = tokenizer,
+            max_answer_length = config.train.max_answer_length
         )
+    else:
+        trainer = getattr(Trainer, config.model.trainer_class)(
+                model = model,
+                criterion = criterion,
+                metric = metric,
+                optimizer = optimizer,
+                device = device,
+                save_dir = save_dir,
+                train_dataloader = train_dataloader,
+                valid_dataloader = valid_dataloader,
+                lr_scheduler=lr_scheduler,
+                epochs=epochs,
+            )
 
     ## wandb를 설정해주시면 됩니다. 만약 sweep을 진행하고 싶다면 sweep=True로 설정해주세요.
     ## 자세한 sweep 설정은 utils/wandb_setting.py를 수정해주세요.

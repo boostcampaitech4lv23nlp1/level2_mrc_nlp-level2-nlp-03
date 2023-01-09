@@ -1,0 +1,49 @@
+wandb:
+    entity: naver_mrc_nlp3
+    project: kh
+    group: T5-large
+    experiment: paust/pko-t5-large_lr=
+    online: True
+
+save_dir : paust-T5-large-lr=
+
+data:
+    # k_fold: 
+    #     n_split: 5
+    #     type: StratifiedKFold # StratifiedShuffleSplit
+    train_path: data/train_dataset/train
+    val_path: data/train_dataset/validation
+    test_path: data/test_dataset/validation
+    preprocess: gen_stride_preprocess
+    AIhub_data_add: False # train 셋에 추가 valid/test x
+    
+model:
+    model_name : paust/pko-t5-large
+    model_class : GenerationModel
+    trainer_class: GenerationTrainer
+    metric_class : Metrics_nbest
+    loss : CEloss
+    optimizer : AdamW
+
+train:
+    seed: 42
+    gpus: 1
+    batch_size: 4 #100 #192 for large inference
+    max_epoch: 5
+    dropout_rate : 0.1
+    learning_rate: 8e-6
+    logging_step: 1
+    max_length : 512
+    stride : 128
+    n_best_size : 20
+    max_answer_length: 30
+
+test:
+    batch_size: 200
+
+retrieval:
+    retrieval_path: data/
+    retrieval_data: wikipedia_documents.json
+    retrieval_class: SparseRetrieval
+    topk: 5
+    is_faiss: False
