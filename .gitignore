@@ -6,6 +6,7 @@
 */*.bin
 *.bin
 *.pth
+*/*.pth
 *.txt
 
 __pycache__
