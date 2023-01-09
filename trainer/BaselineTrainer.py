@@ -28,12 +28,12 @@ class BaselineTrainer():
 
         self.best_model_epoch, self.val_loss_values = [], []
         self.is_token_type_ids = False
-        check = True
-        for model_name in ['roberta', 'distilbert', 'albert', 'camembert', 'flaubert']:
-            if model_name in model.model.name_or_path:
-                check = False
-        if check and 'bert' in model.model.name_or_path:
-            self.is_token_type_ids = True
+        # check = True
+        # for model_name in ['roberta', 'distilbert', 'albert', 'camembert', 'flaubert']:
+        #     if model_name in model.model.name_or_path:
+        #         check = False
+        # if check and 'bert' in model.model.name_or_path:
+        #     self.is_token_type_ids = True
 
     def train(self):
         """
