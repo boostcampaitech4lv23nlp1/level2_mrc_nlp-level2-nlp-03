@@ -1,3 +1,6 @@
+<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/33bf763b-b64e-4b7a-8fbc-5eac8aa6863d/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T134607Z&X-Amz-Expires=86400&X-Amz-Signature=e0ebc6e72a742545e1459f31bb38670f00492172f261277b6e68fd160b91d884&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject">
+
+
 ## Contents
 1. [Overview](#1.-overview)
 2. [Project Tree](#2-project-tree)
@@ -66,10 +69,12 @@
 - Longformer : sparse attention과 global attention을 적용하여 4096개의 토큰을 학습할 수 있는 모델입니다. klue/roberta 모델의 attention을 Longformer의 attention으로 교체한 후, wiki data에 대해 MLM task를 pretraining 작업을 진행하였습니다. 마찬가지로 성능이 하락하는 결과가 나타났습니다.
 <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/14de8793-3c04-45af-9468-16544757d412/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-01-09_%EC%98%A4%EC%A0%84_10.45.12.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T123323Z&X-Amz-Expires=86400&X-Amz-Signature=dae40b1f595f63b993d06bcf52a2325844c1db93e82a5028c550c9716eca40f4&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7%25202023-01-09%2520%25EC%2598%25A4%25EC%25A0%2584%252010.45.12.png%22&x-id=GetObject">
 - 모델이 문장의 손실 없이 학습을 하게 되면 성능이 향상될 것이라는 기대와 다른 결과가 나타났습니다. 저희는 이것이 모델이 긴 문장을 받아들이며 정답을 추출하는데 불필요한 부분들을 참고하게 되어 혼란이 가중되었기 때문이라고 추측했습니다.
+
 3. Relative Position
 - lighthouse/mdeberta-v3-base-kor-further: 각 토큰 간의 상대적 거리를 학습한 모델이 SQuAD 데이터셋에서 좋은 성능을 보인다는 것을 근거로 KorQuAD에서도 각 토큰 간의 상대적 거리를 학습한다면 더 좋은 성능을 보일 것이라 생각하였습니다.
 - DeBERTa는 한국어를 처리하기에 부적합한 모델이므로 KPMG에서 한국어 데이터를 추가적으로 학습한 위 모델을 사용하여 fine-tuning을 진행했습니다. 
 <img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/932b6649-46b9-47f8-b38e-015fa3483197/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-01-09_%EC%98%A4%EC%A0%84_10.16.33.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T123812Z&X-Amz-Expires=86400&X-Amz-Signature=a180fdb36b47f886fc2f32298bf79811b0bd7748764a0c598ee2b5a1dc2c480b&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7%25202023-01-09%2520%25EC%2598%25A4%25EC%25A0%2584%252010.16.33.png%22&x-id=GetObject">
+
 - 여기서도 다소 아쉬운 결과가 나타난 원인으로는 tokenizer를 꼽았습니다. morpheme-based wordpiece를 사용하는 klue/roberta와 달리 DeBERTa 모델은 sentence piece를 사용했기 때문이라는 것입니다.
 
 ### Generation Model
@@ -79,7 +84,6 @@
 - 모델이 생성한 여러 정답들 중 질문과 가장 연관이 있는 단어를 선택하기 위한 정렬 알고리즘이 필요한데, 적절한 알고리즘을 구현하지 못한 것이 훈련과 테스트 간의 점수 차이인 것으로 추측했습니다. 
 - 또한 top-k가 늘어나는 경우 모델이 봐야 할 문서가 늘어나고, 이에 따라 생성되는 정답의 수 또한 늘어나게 되는데, 이 정답들의 우선순위를 제대로 매기지 못하여 오답이 선택될 가능성이 상승한 것으로 판단했습니다.
 
-<br></br>
 
 ## 4. Model Config
 Roberta-large
