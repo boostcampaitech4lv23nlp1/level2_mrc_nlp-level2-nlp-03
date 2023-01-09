@@ -4,6 +4,9 @@
 */*.json
 *.json
 */*.bin
+*.bin
+*.pth
+*.txt
 
 __pycache__
 .vscode
