@@ -1,6 +1,3 @@
-<img src="https://s3-ap-northeast-2.amazonaws.com/prod-aistages-public/app/Users/00000010/files/fc81eeb5-3cc0-44b6-a5dc-aaf38e4166a5..png">
-<br></br>
-
 ## Contents
 1. [Overview](#1.-overview)
 2. [Project Tree](#2-project-tree)
