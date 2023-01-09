@@ -17,3 +17,7 @@ data/wikipedia_documents.json
 data/test_dataset/*
 data/train_dataset/*
 wandb/
+elasticsearch-7.15.1/
+elasticsearch-7.15.1-linux-x86_64.tar.gz
+es_apply.ipynb
+es_basic.ipynb
