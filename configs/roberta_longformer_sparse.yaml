@@ -1,11 +1,11 @@
 wandb:
     entity: naver_mrc_nlp3
-    project: seonjong
+    project: senojong
     group: klue/roberta
-    experiment: roberta-base-sparse
+    experiment: roberta_longformer
     online: True
 
-save_dir : roberta-base-sparse
+save_dir : roberta_longformer
 
 data:
     # k_fold: 
@@ -19,8 +19,8 @@ data:
     AIhub_data_add: False # train 셋에 추가 valid/test x
     
 model:
-    model_name : klue/roberta-base
-    model_class : BaselineModel
+    model_name : klue/roberta-large
+    model_class : LongformerModel
     trainer_class: BaselineTrainer
     metric_class : Metrics_nbest
     loss : CEloss
@@ -29,13 +29,13 @@ model:
 train:
     seed: 42
     gpus: 1
-    batch_size: 8
+    batch_size: 2 # 16
     max_epoch: 10
     dropout_rate : 0.1
     learning_rate: 5e-6
     logging_step: 1
-    max_length : 512
-    stride : 128
+    max_length : 4096 # 384
+    stride : 512
     n_best_size : 20
     max_answer_length: 30
 

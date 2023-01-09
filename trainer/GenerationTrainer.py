@@ -5,16 +5,13 @@ import numpy as np
 import os
 import time
 import gc
-import einops as ein
-import torch.nn.functional as F
-from transformers import trainer
 
-class BaselineTrainer():
+class GenerationTrainer():
     """
     훈련과정입니다.
     """
     def __init__(self, model, criterion, metric, optimizer, device, save_dir,
-                 train_dataloader, valid_dataloader=None, lr_scheduler=None, epochs=1):
+                 train_dataloader, valid_dataloader=None, lr_scheduler=None, epochs=1, tokenizer=None, max_answer_length = None):
         self.model = model
         self.criterion = criterion
         self.metric = metric
@@ -25,15 +22,10 @@ class BaselineTrainer():
         self.valid_dataloader = valid_dataloader
         self.lr_scheduler = lr_scheduler
         self.epochs = epochs
+        self.tokenizer = tokenizer
+        self.max_answer_length = max_answer_length
 
         self.best_model_epoch, self.val_loss_values = [], []
-        self.is_token_type_ids = False
-        # check = True
-        # for model_name in ['roberta', 'distilbert', 'albert', 'camembert', 'flaubert']:
-        #     if model_name in model.model.name_or_path:
-        #         check = False
-        # if check and 'bert' in model.model.name_or_path:
-        #     self.is_token_type_ids = True
 
     def train(self):
         """
@@ -58,32 +50,16 @@ class BaselineTrainer():
         for i, batch in enumerate(pbar):
             self.optimizer.zero_grad()
             steps += 1
-
-            if self.is_token_type_ids: # BERT 모델일 경우 token_type_ids를 넣어줘야 합니다.
-                inputs = {
+            inputs = {
                     'input_ids': batch['input_ids'].to(self.device),
                     'attention_mask': batch['attention_mask'].to(self.device),
-                    'token_type_ids' : batch['token_type_ids'].to(self.device)
-                }
-            else:
-                inputs = {
-                    'input_ids': batch['input_ids'].to(self.device),
-                    'attention_mask': batch['attention_mask'].to(self.device),
-                }
+                    'labels' : batch['labels'].to(self.device)
+            }
+            outputs = self.model(**inputs)
 
-            start_logits, end_logits = self.model(**inputs)
-
-            start_positions = batch['start_positions'].to(self.device)
-            end_positions = batch['end_positions'].to(self.device)
-
-            # seq_len 길이만큼 boundary를 설정하여 seq_len 밖으로 벗어날 경우 벗어난 값을 최소값인 0(cls 토큰)으로 설정해줌
-            start_positions.clamp(0, start_logits.size(1))
-            end_positions.clamp(0, end_logits.size(1))
-
-            # 각 start, end의 loss 평균
-            loss = (self.criterion(start_logits, start_positions) + self.criterion(end_logits, end_positions)) / 2
-                
+            loss = outputs.loss
             loss.backward()
+
             epoch_loss += loss.detach().cpu().numpy().item()
             
             self.optimizer.step()
@@ -98,45 +74,43 @@ class BaselineTrainer():
     def _valid_epoch(self, epoch):
         val_loss = 0
         val_steps = 0
-        start_logits_all, end_logits_all = [],[]
-        len_val_dataset = self.valid_dataloader.dataset.num_rows
+        
         with torch.no_grad():
             self.model.eval()
+            all_preds = []
             for valid_batch in tqdm(self.valid_dataloader):
                 val_steps += 1
-                if self.is_token_type_ids: # BERT 모델일 경우 token_type_ids를 넣어줘야 합니다.
-                    inputs = {
+                inputs = {
                         'input_ids': valid_batch['input_ids'].to(self.device),
                         'attention_mask': valid_batch['attention_mask'].to(self.device),
-                        'token_type_ids' : valid_batch['token_type_ids'].to(self.device)
-                    }
-                else:
-                    inputs = {
-                            'input_ids': valid_batch['input_ids'].to(self.device),
-                            'attention_mask': valid_batch['attention_mask'].to(self.device),
-                        }
+                        'labels' : valid_batch['labels'].to(self.device)
+                }
 
-                start_logits, end_logits = self.model(**inputs)
+                outputs = self.model(**inputs)
 
-                start_positions = valid_batch['start_positions'].to(self.device)
-                end_positions = valid_batch['end_positions'].to(self.device)
-
-                # seq_len 길이만큼 boundary를 설정하여 seq_len 밖으로 벗어날 경우 벗어난 값을 최소값인 0(cls 토큰)으로 설정해줌
-                start_positions.clamp(0, start_logits.size(1))
-                end_positions.clamp(0, end_logits.size(1))
-
-                loss = (self.criterion(start_logits, start_positions) + self.criterion(end_logits, end_positions)) / 2
+                loss = outputs.loss
                 val_loss += loss.detach().cpu().numpy().item()
 
-                start_logits_all.append(start_logits.detach().cpu().numpy())
-                end_logits_all.append(end_logits.detach().cpu().numpy())
+                # 답변을 생성해 줍니다.
+                pred_ids = self.model.model.generate(
+                    input_ids = inputs['input_ids'],
+                    attention_mask = inputs['attention_mask'],
+                    max_length = self.max_answer_length,
+                    do_sample=True,
+                    top_p=0.95, 
+                    top_k=50
+                )
 
+                pred_ids = pred_ids.cpu().numpy()
+                
+                # 생성된 답변을 디코딩해 문자열로 저장해줍니다.
+                for pred_id in pred_ids:
+                    pred_decoded = self.tokenizer.decode(pred_id)
+                    all_preds.append(pred_decoded)
+                    
             val_loss /= val_steps
 
-            start_logits_all = np.concatenate(start_logits_all)[:len_val_dataset]
-            end_logits_all = np.concatenate(end_logits_all)[:len_val_dataset]
-            metrics = self.metric.compute_EM_f1(start_logits_all, end_logits_all, epoch)
-            
+            metrics = self.metric.gen_compute_EM_f1(all_preds, epoch)
             print(f"Epoch [{epoch+1}/{self.epochs}] Val_loss : {val_loss}")
             print(f"Epoch [{epoch+1}/{self.epochs}] Extact Match :", metrics['exact_match'])
             print(f"Epoch [{epoch+1}/{self.epochs}] F1_score :", metrics['f1'])
