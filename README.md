@@ -1,5 +1,4 @@
-<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/33bf763b-b64e-4b7a-8fbc-5eac8aa6863d/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T134607Z&X-Amz-Expires=86400&X-Amz-Signature=e0ebc6e72a742545e1459f31bb38670f00492172f261277b6e68fd160b91d884&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject" width="450" height="250">
-
+<img src="https://user-images.githubusercontent.com/113564875/214513091-a3cd1bfc-2e83-4bf4-b9c9-7df1b25421b3.png">
 
 ## Contents
 1. [Overview](#1.-overview)
@@ -42,7 +41,8 @@
 ### Sparse Retriever
 - TF-IDF : 베이스라인에서 사용된 방식입니다. top-k를 일정 수준까지 상승시키는 것이 성능 향상으로 이어졌습니다. 최적의 top-k는 40이었습니다. 
 - BM25 : TF-IDF를 개선하여 전체 문서의 평균 길이를 반영하고 TF의 영향력을 낮춰줍니다. 기존 TF-IDF에 비해 우수한 성능을 보여주었으며, 최적의 top-k는 30이었습니다.
-<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/e830507d-4a4f-43d9-872f-f1c99bfe877e/Untitled.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T124359Z&X-Amz-Expires=86400&X-Amz-Signature=dc0bc49706c1cf2c5cc5331bdd2161bc023b2876fb8d6a7e32c6410024171386&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22Untitled.png%22&x-id=GetObject">
+<img src="https://user-images.githubusercontent.com/113564875/214514391-f7d33950-8967-4771-ae06-610eead1978e.png">
+
 - Elastic Search : Apache Lucene 기반의 Java 오픈소스 분산 검색 엔진입니다. 문서를 탐색하는 근거가 BM25인데 성능이 하락하는 결과가 나타났습니다. 그 이유로는 부적절한 tokenizer의 사용을 들 수 있습니다.  
 
 ### Dense Retriever
@@ -65,15 +65,18 @@
 2. More Longer Max Length
 - baseline의 max_length: 384 설정을  max_length: 512로 설정할 경우 성능이 더 올라가는 것을 확인하였습니다.
 - monologg/kobigbird-bert-base : max_length: 4096를 볼 수 있는 모델입니다. 하지만 오히려 성능이 하락하는 결과가 나타났습니다.
-<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/f89ada86-a368-4310-b23c-eaaac6f419c2/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-01-09_%EC%98%A4%EC%A0%84_10.40.26.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T122819Z&X-Amz-Expires=86400&X-Amz-Signature=f87e9e580a0bf4069e5a7f8ecb9b7a8be8aa45ec0857519068fa624439e2fc4a&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7%25202023-01-09%2520%25EC%2598%25A4%25EC%25A0%2584%252010.40.26.png%22&x-id=GetObject">
+<img width="1066" alt="kobigbird" src="https://user-images.githubusercontent.com/113564875/214512635-c731d6b1-a96b-4b08-aaea-e337c48e24b1.png">
+
 - Longformer : sparse attention과 global attention을 적용하여 4096개의 토큰을 학습할 수 있는 모델입니다. klue/roberta 모델의 attention을 Longformer의 attention으로 교체한 후, wiki data에 대해 MLM task를 pretraining 작업을 진행하였습니다. 마찬가지로 성능이 하락하는 결과가 나타났습니다.
-<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/14de8793-3c04-45af-9468-16544757d412/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-01-09_%EC%98%A4%EC%A0%84_10.45.12.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T123323Z&X-Amz-Expires=86400&X-Amz-Signature=dae40b1f595f63b993d06bcf52a2325844c1db93e82a5028c550c9716eca40f4&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7%25202023-01-09%2520%25EC%2598%25A4%25EC%25A0%2584%252010.45.12.png%22&x-id=GetObject">
+<img width="988" alt="longformer" src="https://user-images.githubusercontent.com/113564875/214512859-edd9ca6d-9604-4939-80cf-9d287a474903.png">
+
 - 모델이 문장의 손실 없이 학습을 하게 되면 성능이 향상될 것이라는 기대와 다른 결과가 나타났습니다. 저희는 이것이 모델이 긴 문장을 받아들이며 정답을 추출하는데 불필요한 부분들을 참고하게 되어 혼란이 가중되었기 때문이라고 추측했습니다.
 
 3. Relative Position
 - lighthouse/mdeberta-v3-base-kor-further: 각 토큰 간의 상대적 거리를 학습한 모델이 SQuAD 데이터셋에서 좋은 성능을 보인다는 것을 근거로 KorQuAD에서도 각 토큰 간의 상대적 거리를 학습한다면 더 좋은 성능을 보일 것이라 생각하였습니다.
 - DeBERTa는 한국어를 처리하기에 부적합한 모델이므로 KPMG에서 한국어 데이터를 추가적으로 학습한 위 모델을 사용하여 fine-tuning을 진행했습니다. 
-<img src="https://s3.us-west-2.amazonaws.com/secure.notion-static.com/932b6649-46b9-47f8-b38e-015fa3483197/%EC%8A%A4%ED%81%AC%EB%A6%B0%EC%83%B7_2023-01-09_%EC%98%A4%EC%A0%84_10.16.33.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=AKIAT73L2G45EIPT3X45%2F20230109%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20230109T123812Z&X-Amz-Expires=86400&X-Amz-Signature=a180fdb36b47f886fc2f32298bf79811b0bd7748764a0c598ee2b5a1dc2c480b&X-Amz-SignedHeaders=host&response-content-disposition=filename%3D%22%25EC%258A%25A4%25ED%2581%25AC%25EB%25A6%25B0%25EC%2583%25B7%25202023-01-09%2520%25EC%2598%25A4%25EC%25A0%2584%252010.16.33.png%22&x-id=GetObject">
+
+<img width="1092" alt="deberta" src="https://user-images.githubusercontent.com/113564875/214513371-2563f9a7-9da6-467b-8efb-e74ea09473d0.png">
 
 - 여기서도 다소 아쉬운 결과가 나타난 원인으로는 tokenizer를 꼽았습니다. morpheme-based wordpiece를 사용하는 klue/roberta와 달리 DeBERTa 모델은 sentence piece를 사용했기 때문이라는 것입니다.
 
